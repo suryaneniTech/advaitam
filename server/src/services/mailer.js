@@ -98,6 +98,113 @@ export async function sendInviteEmail({ to, tempPassword, expiresAt }) {
   }
 }
 
+export async function sendOtpEmail({ to, code, expiresMinutes }) {
+  const from = process.env.MAIL_FROM || `Advaitam <${process.env.GMAIL_USER}>`;
+  const transporter = getTransporter();
+
+  const text = [
+    'Your Advaitam sign-in code',
+    '',
+    `Code: ${code}`,
+    '',
+    `This code expires in ${expiresMinutes} minutes.`,
+    '',
+    'If you did not request this code, you can ignore this email.',
+  ].join('\n');
+
+  const html = `
+    <div style="font-family: sans-serif; max-width: 520px; color: #1a1a1a;">
+      <h2 style="margin-bottom: 8px;">Your sign-in code</h2>
+      <p>Use this code to sign in to Advaitam:</p>
+      <p style="font-size: 28px; font-weight: bold; letter-spacing: 0.2em; margin: 24px 0;">${code}</p>
+      <p style="color: #666; font-size: 14px;">This code expires in ${expiresMinutes} minutes.</p>
+      <p style="color: #666; font-size: 14px;">If you did not request this code, you can ignore this email.</p>
+    </div>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from,
+      to,
+      subject: 'Your Advaitam sign-in code',
+      text,
+      html,
+    });
+  } catch (err) {
+    throw new Error(friendlyMailError(err));
+  }
+}
+
+export async function sendImposterGameInviteEmail({ to, tempPassword, expiresAt, hostEmail }) {
+  const appUrl = process.env.APP_URL || 'http://localhost:5173';
+  const from = process.env.MAIL_FROM || `Advaitam <${process.env.GMAIL_USER}>`;
+  const gameUrl = `${appUrl}/dashboard/imposter`;
+  const expiryText = expiresAt
+    ? `Your login invite expires on ${expiresAt.toLocaleDateString()} ${expiresAt.toLocaleTimeString()}.`
+    : '';
+
+  const transporter = getTransporter();
+
+  const textLines = [
+    'You are invited to an Imposter game on Advaitam!',
+    '',
+    hostEmail ? `${hostEmail} has invited you to join their game.` : 'A host has invited you to join their game.',
+    '',
+    `Open Advaitam: ${gameUrl}`,
+    'Go to the Imposter tab and tap Join game.',
+  ];
+
+  if (tempPassword) {
+    textLines.push(
+      '',
+      'Your account was created. Sign in with:',
+      `Email: ${to}`,
+      `Temporary password: ${tempPassword}`,
+      '',
+      'You will be asked to set a new password on first login.',
+      expiryText
+    );
+  }
+
+  textLines.push('', 'If you did not expect this email, you can ignore it.');
+  const text = textLines.filter(Boolean).join('\n');
+
+  const credentialsHtml = tempPassword
+    ? `
+      <p>Your account was created. Sign in with:</p>
+      <table style="margin: 20px 0; border-collapse: collapse;">
+        <tr><td style="padding: 6px 12px 6px 0; color: #666;">Login URL</td><td><a href="${appUrl}/login">${appUrl}/login</a></td></tr>
+        <tr><td style="padding: 6px 12px 6px 0; color: #666;">Email</td><td><strong>${to}</strong></td></tr>
+        <tr><td style="padding: 6px 12px 6px 0; color: #666;">Temporary password</td><td><strong>${tempPassword}</strong></td></tr>
+      </table>
+      <p style="color: #666; font-size: 14px;">You will be asked to set a new password on first login.</p>
+      ${expiryText ? `<p style="color: #666; font-size: 14px;">${expiryText}</p>` : ''}
+    `
+    : '';
+
+  const html = `
+    <div style="font-family: sans-serif; max-width: 520px; color: #1a1a1a;">
+      <h2 style="margin-bottom: 8px;">Imposter game invite</h2>
+      <p>${hostEmail ? `<strong>${hostEmail}</strong> has` : 'A host has'} invited you to join an Imposter game.</p>
+      <p>Open Advaitam, go to the <strong>Imposter</strong> tab, and tap <strong>Join game</strong>:</p>
+      <p><a href="${gameUrl}">${gameUrl}</a></p>
+      ${credentialsHtml}
+    </div>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from,
+      to,
+      subject: 'You are invited to an Imposter game on Advaitam',
+      text,
+      html,
+    });
+  } catch (err) {
+    throw new Error(friendlyMailError(err));
+  }
+}
+
 export async function sendTestEmail(to) {
   const from = process.env.MAIL_FROM || `Advaitam <${process.env.GMAIL_USER}>`;
   const transporter = getTransporter();

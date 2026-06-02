@@ -9,6 +9,7 @@ import { migrateUsers } from './seed/migrateUsers.js';
 import { verifyGmailConnection } from './services/mailer.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
+import imposterRoutes from './routes/imposter.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +29,7 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/imposter', imposterRoutes);
 
 async function start() {
   if (!process.env.JWT_SECRET) {

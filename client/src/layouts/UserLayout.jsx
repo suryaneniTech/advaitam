@@ -2,12 +2,11 @@ import { NavLink, Outlet } from 'react-router-dom';
 import UserMenu from '../components/UserMenu';
 
 const navItems = [
-  { to: '/admin', label: 'Home', end: true },
-  { to: '/admin/users', label: 'Users' },
-  { to: '/admin/imposter', label: 'Imposter' },
+  { to: '/dashboard', label: 'Home', end: true },
+  { to: '/dashboard/imposter', label: 'Imposter' },
 ];
 
-export default function AdminLayout() {
+export default function UserLayout() {
   return (
     <div className="app-shell">
       <aside className="sidebar" aria-label="Main navigation">

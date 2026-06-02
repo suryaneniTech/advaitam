@@ -38,6 +38,18 @@ export const api = {
       body: JSON.stringify({ email, password }),
     }),
 
+  sendOtp: (email) =>
+    request('/auth/otp/send', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  verifyOtp: (email, otp) =>
+    request('/auth/otp/verify', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp }),
+    }),
+
   me: () => request('/auth/me'),
 
   getUsers: () => request('/users'),
@@ -97,4 +109,50 @@ export const api = {
 
   deleteUser: (id) =>
     request(`/users/${id}`, { method: 'DELETE' }),
+
+  inviteToImposter: (emails) =>
+    request('/imposter/invite', {
+      method: 'POST',
+      body: JSON.stringify({ emails }),
+    }),
+
+  suggestImposterWord: () => request('/imposter/word/suggest'),
+
+  getImposterGame: () => request('/imposter/game'),
+
+  joinImposterGame: () =>
+    request('/imposter/join', { method: 'POST' }),
+
+  startImposterGame: (payload) =>
+    request('/imposter/start', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  beginImposterHints: () =>
+    request('/imposter/begin-hints', { method: 'POST' }),
+
+  submitImposterHint: (hint) =>
+    request('/imposter/hint', {
+      method: 'POST',
+      body: JSON.stringify({ hint }),
+    }),
+
+  submitImposterVote: (targetUserId) =>
+    request('/imposter/vote', {
+      method: 'POST',
+      body: JSON.stringify({ targetUserId }),
+    }),
+
+  confirmImposterElimination: (isImposter) =>
+    request('/imposter/confirm-imposter', {
+      method: 'POST',
+      body: JSON.stringify({ isImposter }),
+    }),
+
+  endImposterGame: () =>
+    request('/imposter/end', { method: 'POST' }),
+
+  resetImposterGame: () =>
+    request('/imposter/reset', { method: 'POST' }),
 };

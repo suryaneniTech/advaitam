@@ -1,8 +1,8 @@
 const hits = new Map();
 
-export function rateLimit({ windowMs = 60 * 60 * 1000, max = 20 } = {}) {
+export function rateLimit({ windowMs = 60 * 60 * 1000, max = 20, keyFn } = {}) {
   return (req, res, next) => {
-    const key = req.user?._id?.toString() || req.ip;
+    const key = keyFn ? keyFn(req) : req.user?._id?.toString() || req.ip;
     const now = Date.now();
 
     let entry = hits.get(key);

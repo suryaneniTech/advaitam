@@ -2,10 +2,13 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import ChangePassword from './pages/ChangePassword';
-import Dashboard from './pages/Dashboard';
+import UserLayout from './layouts/UserLayout';
+import UserHome from './pages/UserHome';
+import ImposterTab from './components/ImposterTab';
 import AdminLayout from './layouts/AdminLayout';
 import AdminHome from './pages/admin/AdminHome';
 import UserManagement from './pages/admin/UserManagement';
+import ImposterGameAdmin from './pages/admin/ImposterGameAdmin';
 
 function homeFor(user) {
   if (user.mustChangePassword) return '/change-password';
@@ -82,15 +85,19 @@ export default function App() {
       >
         <Route index element={<AdminHome />} />
         <Route path="users" element={<UserManagement />} />
+        <Route path="imposter" element={<ImposterGameAdmin />} />
       </Route>
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <UserLayout />
           </ProtectedRoute>
         }
-      />
+      >
+        <Route index element={<UserHome />} />
+        <Route path="imposter" element={<ImposterTab />} />
+      </Route>
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );

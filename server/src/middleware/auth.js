@@ -22,6 +22,7 @@ export function auth(requiredRole) {
       }
 
       req.user = user;
+      User.updateOne({ _id: user._id }, { lastActiveAt: new Date() }).catch(() => {});
       next();
     } catch {
       return res.status(401).json({ message: 'Invalid or expired token' });

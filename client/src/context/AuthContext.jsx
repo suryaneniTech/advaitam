@@ -41,6 +41,14 @@ export function AuthProvider({ children }) {
     return user;
   };
 
+  const loginWithOtp = async (email, otp) => {
+    const { token, user } = await api.verifyOtp(email, otp);
+    localStorage.setItem('token', token);
+    setUser(user);
+    navigate(homeFor(user), { replace: true });
+    return user;
+  };
+
   const changePassword = async (currentPassword, newPassword) => {
     const { user } = await api.changePassword(currentPassword, newPassword);
     setUser(user);
@@ -67,7 +75,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, changePassword, uploadAvatar, removeAvatar, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithOtp, changePassword, uploadAvatar, removeAvatar, logout }}>
       {children}
     </AuthContext.Provider>
   );
