@@ -4,7 +4,7 @@ import UserMenu from '../components/UserMenu';
 const navItems = [
   { to: '/admin', label: 'Home', end: true },
   { to: '/admin/users', label: 'Users' },
-  { to: '/admin/imposter', label: 'Imposter' },
+  { to: '/admin/imposter', label: 'Mithya / Imposter' },
 ];
 
 export default function AdminLayout() {

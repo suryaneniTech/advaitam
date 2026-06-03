@@ -3,7 +3,7 @@ import UserMenu from '../components/UserMenu';
 
 const navItems = [
   { to: '/dashboard', label: 'Home', end: true },
-  { to: '/dashboard/imposter', label: 'Imposter' },
+  { to: '/dashboard/imposter', label: 'Mithya / Imposter' },
 ];
 
 export default function UserLayout() {

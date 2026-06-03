@@ -46,7 +46,7 @@ export default function ImposterPlayerView() {
   if (!game) {
     return (
       <div className="panel">
-        <h2>Imposter</h2>
+        <h2>Mithya / Imposter</h2>
         <p className="muted">No game in progress. Host a game from the Host tab above or wait for an invite.</p>
       </div>
     );
@@ -59,7 +59,7 @@ export default function ImposterPlayerView() {
 
       <div className="panel">
         <div className="panel-header-row">
-          <h2>Imposter Game</h2>
+          <h2>Mithya / Imposter</h2>
           <span className="game-status-pill">{gameStatusLabel(game.status)}</span>
         </div>
         {game.round > 1 && <p className="muted">Round {game.round}</p>}

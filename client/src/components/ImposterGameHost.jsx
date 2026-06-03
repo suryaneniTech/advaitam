@@ -360,7 +360,7 @@ export default function ImposterGameHost({ embedded = false }) {
   return (
     <div className="page-content">
       <header className="page-header">
-        <h1>Imposter Game</h1>
+        <h1>Mithya / Imposter</h1>
         <p className="page-subtitle">
           Invite players by email, then run the game. The host does not play.
         </p>

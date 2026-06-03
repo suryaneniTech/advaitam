@@ -146,12 +146,12 @@ export async function sendImposterGameInviteEmail({ to, tempPassword, expiresAt,
   const transporter = getTransporter();
 
   const textLines = [
-    'You are invited to an Imposter game on Advaitam!',
+    'You are invited to a Mithya / Imposter game on Advaitam!',
     '',
     hostEmail ? `${hostEmail} has invited you to join their game.` : 'A host has invited you to join their game.',
     '',
     `Open Advaitam: ${gameUrl}`,
-    'Go to the Imposter tab and tap Join game.',
+    'Go to the Mithya / Imposter tab and tap Join game.',
   ];
 
   if (tempPassword) {
@@ -184,9 +184,9 @@ export async function sendImposterGameInviteEmail({ to, tempPassword, expiresAt,
 
   const html = `
     <div style="font-family: sans-serif; max-width: 520px; color: #1a1a1a;">
-      <h2 style="margin-bottom: 8px;">Imposter game invite</h2>
-      <p>${hostEmail ? `<strong>${hostEmail}</strong> has` : 'A host has'} invited you to join an Imposter game.</p>
-      <p>Open Advaitam, go to the <strong>Imposter</strong> tab, and tap <strong>Join game</strong>:</p>
+      <h2 style="margin-bottom: 8px;">Mithya / Imposter game invite</h2>
+      <p>${hostEmail ? `<strong>${hostEmail}</strong> has` : 'A host has'} invited you to join a Mithya / Imposter game.</p>
+      <p>Open Advaitam, go to the <strong>Mithya / Imposter</strong> tab, and tap <strong>Join game</strong>:</p>
       <p><a href="${gameUrl}">${gameUrl}</a></p>
       ${credentialsHtml}
     </div>
@@ -196,7 +196,7 @@ export async function sendImposterGameInviteEmail({ to, tempPassword, expiresAt,
     await transporter.sendMail({
       from,
       to,
-      subject: 'You are invited to an Imposter game on Advaitam',
+      subject: 'You are invited to a Mithya / Imposter game on Advaitam',
       text,
       html,
     });
