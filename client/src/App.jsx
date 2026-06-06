@@ -9,6 +9,7 @@ import AdminLayout from './layouts/AdminLayout';
 import AdminHome from './pages/admin/AdminHome';
 import UserManagement from './pages/admin/UserManagement';
 import ImposterGameAdmin from './pages/admin/ImposterGameAdmin';
+import HostelTab from './components/HostelTab';
 
 function homeFor(user) {
   if (user.mustChangePassword) return '/change-password';
@@ -98,6 +99,7 @@ export default function App() {
         <Route index element={<UserHome />} />
         <Route path="imposter" element={<ImposterTab />} />
       </Route>
+      <Route path="/hostel/*" element={<HostelTab />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
