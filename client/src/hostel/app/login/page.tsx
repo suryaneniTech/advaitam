@@ -35,22 +35,35 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm">
         <h1 className="mb-1 text-2xl font-semibold text-slate-900">Welcome back</h1>
-        <p className="mb-6 text-sm text-slate-500">Sign in to your hostel account</p>
+        <p className="mb-6 text-sm text-slate-500">
+          Sign in to your hostel account (separate from the main Advaitam login).
+        </p>
+        {import.meta.env.DEV && (
+          <p className="mb-4 rounded-lg bg-slate-100 px-3 py-2 text-xs text-slate-600">
+            Dev defaults: <span className="font-mono">admin@hostel.local</span> /{' '}
+            <span className="font-mono">ChangeMe123!</span> (or your{' '}
+            <span className="font-mono">HOSTEL_ADMIN_*</span> values in server/.env)
+          </p>
+        )}
 
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4" autoComplete="off">
           <input
             type="email"
+            name="hostel-email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="off"
             required
             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
           />
           <input
             type="password"
+            name="hostel-password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
             required
             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
           />

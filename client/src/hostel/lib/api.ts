@@ -26,7 +26,12 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     },
   });
 
-  if (res.status === 401 && !skipRetry && !path.endsWith('/auth/refresh')) {
+  const isAuthAttempt =
+    path.endsWith('/auth/login') ||
+    path.endsWith('/auth/logout') ||
+    path.endsWith('/auth/refresh');
+
+  if (res.status === 401 && !skipRetry && !isAuthAttempt) {
     const refreshed = await tryRefresh();
     if (refreshed) return request<T>(path, { ...options, skipRetry: true });
   }

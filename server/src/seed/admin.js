@@ -16,10 +16,18 @@ export async function seedAdmin() {
 
   const existing = await User.findOne({ role: 'admin' });
   if (existing) {
+    let changed = false;
     if (!existing.email || existing.email !== adminEmail) {
       existing.email = adminEmail;
+      changed = true;
+    }
+    if (!(await existing.comparePassword(ADMIN_PASSWORD))) {
+      existing.password = ADMIN_PASSWORD;
+      changed = true;
+    }
+    if (changed) {
       await existing.save();
-      console.log(`Admin email updated to "${adminEmail}"`);
+      console.log(`Admin credentials synced from env (${adminEmail})`);
     }
     return;
   }
