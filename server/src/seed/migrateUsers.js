@@ -1,7 +1,15 @@
 import { User } from '../models/User.js';
 
 export async function migrateUsers() {
-  const indexes = await User.collection.indexes();
+  let indexes;
+  try {
+    indexes = await User.collection.indexes();
+  } catch (err) {
+    if (err.code === 26 || err.codeName === 'NamespaceNotFound') {
+      return;
+    }
+    throw err;
+  }
   const legacyUsernameIndex = indexes.find(
     (idx) => idx.key?.username === 1 || idx.name === 'username_1'
   );
