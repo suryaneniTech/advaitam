@@ -45,6 +45,13 @@ export interface CreateHostelInput {
   timezone?: string;
 }
 
+export interface BulkRoomImportResult {
+  created: number;
+  skipped: Array<{ row: number; number: string; reason: string }>;
+  errors: Array<{ row: number; message: string }>;
+  rooms: Room[];
+}
+
 export const hostelsApi = {
   listColleges: () => api.get<College[]>('/api/hostels/colleges'),
   createCollege: (body: { name: string; code: string; address?: string }) =>
@@ -60,5 +67,11 @@ export const hostelsApi = {
 
   createRoom: (body: { hostelId: string; number: string; floor?: number; capacity?: number }) =>
     api.post<Room>('/api/hostels/rooms', body),
+  bulkUploadRooms: (hostelId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('hostelId', hostelId);
+    formData.append('file', file);
+    return api.upload<BulkRoomImportResult>('/api/hostels/rooms/bulk', formData);
+  },
   deleteRoom: (id: string) => api.del<{ ok: boolean }>(`/api/hostels/rooms/${id}`),
 };

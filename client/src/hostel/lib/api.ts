@@ -71,5 +71,27 @@ export const api = {
   patch: <T>(path: string, body?: unknown) =>
     request<T>(path, { method: 'PATCH', body: body ? JSON.stringify(body) : undefined }),
   del: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
+  upload: async <T>(path: string, formData: FormData): Promise<T> => {
+    const res = await fetch(`${API_PREFIX}${path.replace(/^\/api/, '')}`, {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+      headers: {
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+    });
+
+    if (res.status === 401) {
+      const refreshed = await tryRefresh();
+      if (refreshed) return api.upload<T>(path, formData);
+    }
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new ApiClientError(res.status, body.error ?? res.statusText, body.details);
+    }
+
+    return res.json() as Promise<T>;
+  },
   refresh: tryRefresh,
 };

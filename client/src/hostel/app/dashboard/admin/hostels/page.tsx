@@ -9,11 +9,11 @@
  * will read — nothing here marks attendance yet.
  */
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, Building2, MapPin, Clock, Trash2, DoorOpen, X } from 'lucide-react';
+import { Plus, Building2, MapPin, Clock, Trash2, DoorOpen, X, Upload } from 'lucide-react';
 import { RouteGuard } from '@hostel/components/RouteGuard';
 import { DashboardShell } from '@hostel/components/DashboardShell';
 import { Card } from '@hostel/components/ui/Card';
-import { hostelsApi, type College, type Hostel } from '@hostel/lib/hostelsApi';
+import { hostelsApi, type BulkRoomImportResult, type College, type Hostel } from '@hostel/lib/hostelsApi';
 import { ApiClientError } from '@hostel/lib/api';
 
 export default function HostelsPage() {
@@ -337,6 +337,8 @@ function RoomDrawer({ hostelId, onClose }: { hostelId: string; onClose: () => vo
   const [number, setNumber] = useState('');
   const [capacity, setCapacity] = useState('2');
   const [busy, setBusy] = useState(false);
+  const [uploadBusy, setUploadBusy] = useState(false);
+  const [importResult, setImportResult] = useState<BulkRoomImportResult | null>(null);
 
   const load = useCallback(async () => {
     setHostel(await hostelsApi.getHostel(hostelId));
@@ -367,6 +369,21 @@ function RoomDrawer({ hostelId, onClose }: { hostelId: string; onClose: () => vo
     }
   }
 
+  async function uploadRooms(file: File) {
+    setError(null);
+    setImportResult(null);
+    setUploadBusy(true);
+    try {
+      const result = await hostelsApi.bulkUploadRooms(hostelId, file);
+      setImportResult(result);
+      await load();
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : 'Failed to import rooms');
+    } finally {
+      setUploadBusy(false);
+    }
+  }
+
   async function removeRoom(id: string) {
     await hostelsApi.deleteRoom(id);
     await load();
@@ -389,6 +406,46 @@ function RoomDrawer({ hostelId, onClose }: { hostelId: string; onClose: () => vo
             Add
           </button>
         </div>
+
+        <div className="mt-4 rounded-lg border border-dashed border-slate-200 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium text-slate-900">Bulk upload</p>
+              <p className="mt-1 text-xs text-slate-500">
+                CSV or Excel with columns <span className="font-medium">room number</span> and{' '}
+                <span className="font-medium">capacity</span>.
+              </p>
+            </div>
+            <Upload className="h-4 w-4 shrink-0 text-slate-400" />
+          </div>
+          <label className="mt-3 inline-flex cursor-pointer items-center rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+            {uploadBusy ? 'Uploading…' : 'Choose file'}
+            <input
+              type="file"
+              accept=".csv,.xls,.xlsx,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              className="hidden"
+              disabled={uploadBusy}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) uploadRooms(file);
+                e.target.value = '';
+              }}
+            />
+          </label>
+        </div>
+
+        {importResult && (
+          <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+            <p className="font-medium text-slate-900">Import complete</p>
+            <p className="mt-1">{importResult.created} room{importResult.created === 1 ? '' : 's'} created.</p>
+            {importResult.skipped.length > 0 && (
+              <p className="mt-1">{importResult.skipped.length} skipped (duplicate or already exists).</p>
+            )}
+            {importResult.errors.length > 0 && (
+              <p className="mt-1">{importResult.errors.length} row{importResult.errors.length === 1 ? '' : 's'} had errors.</p>
+            )}
+          </div>
+        )}
 
         {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 

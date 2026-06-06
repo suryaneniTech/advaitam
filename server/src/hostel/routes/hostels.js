@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { collegesService, hostelsService, roomsService } from '../services/hostels.js';
 import { authenticate, requireRoles } from '../middleware/auth.js';
+import { spreadsheetUpload } from '../config/upload.js';
 import { HostelAuditLog } from '../../models/hostel/index.js';
 
 const router = Router();
@@ -92,6 +93,37 @@ router.post('/rooms', async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+router.post('/rooms/bulk', (req, res, next) => {
+  spreadsheetUpload.single('file')(req, res, async (uploadErr) => {
+    if (uploadErr) {
+      return res.status(400).json({ error: uploadErr.message || 'Upload failed' });
+    }
+
+    try {
+      const { hostelId } = req.body;
+      if (!hostelId) return res.status(400).json({ error: 'hostelId required' });
+      if (!req.file?.buffer) return res.status(400).json({ error: 'file required' });
+
+      const result = await roomsService.bulkCreate(
+        req.hostelUser.collegeId,
+        hostelId,
+        req.file.buffer,
+      );
+
+      await audit(req, 'ROOMS_BULK_IMPORTED', 'Hostel', hostelId, {
+        created: result.created,
+        skipped: result.skipped.length,
+        errors: result.errors.length,
+        filename: req.file.originalname,
+      });
+
+      res.status(201).json(result);
+    } catch (err) {
+      next(err);
+    }
+  });
 });
 
 router.delete('/rooms/:id', async (req, res, next) => {

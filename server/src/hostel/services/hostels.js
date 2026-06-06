@@ -5,6 +5,7 @@ import {
   HostelStudentProfile,
   HostelUser,
 } from '../../models/hostel/index.js';
+import { parseRoomSpreadsheet } from '../lib/roomImport.js';
 import { ApiError } from '../lib/security.js';
 
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -132,5 +133,52 @@ export const roomsService = {
     const hostel = await HostelBuilding.findById(room.hostelId);
     assertCollegeScope(requesterCollegeId, hostel.collegeId);
     await HostelRoom.findByIdAndDelete(id);
+  },
+
+  async bulkCreate(requesterCollegeId, hostelId, fileBuffer) {
+    await hostelsService.getById(hostelId, requesterCollegeId);
+
+    const { rows, errors: parseErrors } = parseRoomSpreadsheet(fileBuffer);
+    if (!rows.length) {
+      throw ApiError.badRequest('No room rows found in file', parseErrors);
+    }
+
+    const existing = await HostelRoom.find({ hostelId }).select('number').lean();
+    const existingNumbers = new Set(existing.map((room) => room.number));
+    const seenInFile = new Set();
+
+    const toCreate = [];
+    const skipped = [];
+
+    for (const row of rows) {
+      if (seenInFile.has(row.number)) {
+        skipped.push({ row: row.rowNumber, number: row.number, reason: 'Duplicate in file' });
+        continue;
+      }
+      seenInFile.add(row.number);
+
+      if (existingNumbers.has(row.number)) {
+        skipped.push({ row: row.rowNumber, number: row.number, reason: 'Already exists in hostel' });
+        continue;
+      }
+
+      toCreate.push({
+        hostelId,
+        number: row.number,
+        capacity: row.capacity,
+      });
+    }
+
+    let created = [];
+    if (toCreate.length) {
+      created = await HostelRoom.insertMany(toCreate, { ordered: true });
+    }
+
+    return {
+      created: created.length,
+      skipped,
+      errors: parseErrors,
+      rooms: created.map((room) => room.toObject()),
+    };
   },
 };
